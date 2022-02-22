@@ -159,3 +159,58 @@
 		다음 단계로 넘어갈 수 있다. 복습과 코드를 직접 만들어보면서 확실하게 
 		본인 것으로 만들고 다음으로 넘어가자.
 ```
+
+### 로그 추적기 V1 - 적용
+```
+  이제 애플리케이션에 우리가 개발한 로그 추적기를 적용해보자.
+  기존 v0 패키지에 코드를 직접 작성해도 되지만, 기존 코드를 유지하고, 비교하기 위해서 
+  v1 패키지를 새로 만들고 기존 코드를 복사하자. 복사하는 과정은 다음을 참고하자 
+  
+  vo -> v1 복사 
+    - hello.advanced.app.v1 패키지 생성 
+	- 복사 
+	  - v0.OrderRepositoryV0 -> v1.OrderRepositoryV1
+	  - v0.OrderServiceV0 -> v1.OrderServiceV1
+	  - v0.OrderControllerV0 -> v1.OrderControllerV1
+	- 코드 내부 의존관계를 클래스를 V1으로 변경 
+	  - OrderControllerV1: OrderServiceV0 -> OrderServiceV1
+	  - OrderServiceV1: OrderRepositoryV0 -> OrderRepositoryV1
+	- OrderControllerV1 매핑 정보 변경
+	  - @GetMapping("/v1/request")
+	  
+	실행해서 정상 동작하는지 확인하자.
+	  - 실행: http://localhost:8080/v1/request?itemId=hello
+	  - 결과: ok
+	  
+
+  v1 적용하기 
+    OrderControllerV1, OrderServiceV1, OrderRepositoryV1에 
+	로그 추적기를 적용해보자.
+	먼저 컨트롤러에 우리가 개발한 HelloTraceV1을 적용해 보자
+	  - HelloTraceV1 trace: HelloTraceV1을 주입 받는다. 참고로 
+	    HelloTraceV1은 @Component 애노테이션을 가지고 있기 때문에 
+		컴포넌트 스캔의 대상이 된다. 따라서 자동으로 스프링 빈으로 등록된다. 
+		
+	  - trace.begin("OrderController.request()): 로그를
+	    시작할 때 메시지 이름으로 컨트롤러 이름 + 메서드 이름을 주었다. 
+		이렇게 하면 어떤 컨트롤러와 메서드가 호출되었는지 로그로 편리하게 
+		확인할 수 있다. 물론 수작업이다.
+	  - 단순하게 trace.begin(), trace.end() 코드 두 줄만 적용하면 
+	    될 줄 알았지만, 실상은 그렇지 않다. trace.exception()으로 
+		예외까지 처리해야 하므로 지저분한 try, catch 코드가 추가된다. 
+	  - begin()의 결과 값으로 받은 TraceStatus status 값을 
+	    end(), exception()에 넘겨야 한다. 결국 try, catch 블록 
+		모두에 이 값을 넘겨야 한다. 따라서 try 상위에 TraceStatus status
+		코드를 선언해야 한다. 만약 try 안에서 TraceStatus status를 
+		선언하면 try 블록안에서만 해당 변수가 유효하기 때문에 catch 블록에
+		넘길 수 없다. 따라서 컴파일 오류가 발생한다.
+	  - throw e: 예외를 꼭 다시 던져주어야 한다. 그렇지 않으면 여기서 예외를 
+	    먹어버리고, 이후에 정상 흐름으로 동작한다. 로그는 애플리케이션의 흐름에 
+		영향을 주면 안된다. 로그 때문에 예외가 사라지면 안된다.
+		
+	실행 
+	  - 정상: http://localhost:8080/v1/request?itemId=hello
+	  - 예외: http://localhost:8080/v1/request?itemId=ex
+	  실행해보면 정상 흐름과 예외 모두 로그로 잘 출력되는 것을 확인할 수 있다. 
+	  나머지 부분도 완성하자.
+```
