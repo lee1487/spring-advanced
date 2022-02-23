@@ -261,3 +261,68 @@
 	  실행 로그를 보면 같은 트랜잭션ID를 유지하고 level을 통해 메서드 호출의 
 	  깊이를 표현하는 것을 확인할 수 있다.
 ```
+
+### 로그 추적기 V2 - 적용 
+```
+  이제 로그 추적기를 애플리케이션에 적용해보자
+  
+  v1 -> v2 복사 
+    로그 추적기 V2를 적용하기 전에 먼저 기존 코드를 복사하자.
+	  - hello.advanced.app.v2 패키지 생성 
+	  - 복사 
+	    - v1.OrderRepositoryV1 -> v2.OrderRepositoryV2
+	    - v1.OrderServiceV1 -> v2.OrderServiceV2
+	    - v1.OrderControllerV1 -> v2.OrderControllerV2
+	  - 코드 내부 의존관계를 클래스를 V2으로 변경 
+	    - OrderControllerV2: OrderServiceV1 -> OrderServiceV2
+	    - OrderServiceV2: OrderRepositoryV1 -> OrderRepositoryV2
+	  - OrderControllerV2 매핑 정보 변경
+	    - @GetMapping("/v2/request")
+	  - app.v2에서는 HelloTraceV1 -> HelloTraceV2를 사용하도록 변경
+	    - OrderControllerV2
+		- OrderServiceV2
+		- OrderRepositoryV2
+	실행해서 정상 동작하는지 확인하자.
+	  - 실행 : http://localhost:8080/v2/request?itemId=hello
+	  - 결과 : v1의 코드를 그대로 복사했기 때문에 v1과 같은 로그가 출력되면 성공이다.
+	  
+  V2 적용하기
+    메서드 호출의 깊이를 표현하고, HTTP 요청도 구분해보자.
+	이렇게 하려면 처음 로그를 남기는 OrderController.request()에서 로그를 남길 때
+	어떤 깊이와 어떤 트랜잭션 ID를 사용했는지 다음 차례인 OrderService.orderItem()에서
+	로그를 남기는 시점에 알아야한다.
+	결국 현재 로그의 상태 정보인 트랜잭션ID와 level이 다음으로 전달되어야 한다. 
+	이 정보는 TraceStatus.traceId에 담겨있다. 따라서 traceId를 컨트롤러에서 
+	서비스를 호출할 때 넘겨주면 된다.
+	
+	traceId를 넘기도록 V2 전체 코드를 수정하자. 
+	
+	OrderControllerV2
+	  - TraceStatus status = trace.begin()에서 반환 받은 TraceStatus에는 
+	    트랜잭션ID와 level 정보가 있는 TraceId가 있다. 
+	  - orderService.orderItem()을 호출할 때 TraceId를 파라미터로 전달한다.
+	  - TraceId를 파라미터로 전달하기 위해 OrderServiceV2.orderItem()의 
+	    파라미터에 TraceId를 추가해야 한다.
+		
+	OrderServiceV2
+	  - orderItem()은 파라미터로 전달 받은 traceId를 사용해서 
+	    trace.beginSync()를 실행한다.
+	  - beginSync()는 내부에서 다음 traceId를 생성하면서 트랜잭션 ID는 
+	    유지하고 level은 하나 증가시킨다.
+	  - beginSync()가 반환한 새로운 TraceStatus를 
+	    orderRepository.save()를 호출하면서 파라미터로 전달한다.
+	  - TraceId를 파라미터로 전달하기 위해 orderRepository.save()의
+	    파라미터에 TraceId를 추가해야 한다.
+		
+	OrderRepositoryV2
+	  - save()는 파라미터로 전달받은 traceId를 사용해서 
+	    trace.beginSync()를 실행한다.
+	  - beginSync()는 내부에서 다음 traceId를 생성하면서 트랜잭션 ID는 
+	    유지하고 level은 하나 증가시킨다.
+	  - beginSync()는 이렇게 갱신된 traceId로 새로운 TraceStatus를
+	    반환한다.
+	  - trace.end(status)를 호출하면서 반환된 TraceStatus를 전달한다.
+	  
+	실행 로그를 보면 같은 HTTP 요청에 대해서 트랜잭션ID가 유지되고, level도 
+	잘 표현되는 것을 확인할 수 있다.
+```
