@@ -604,3 +604,19 @@
     - 멀티쓰레드 상황에서 문제가 없는지 애플리케이션에 ThreadLocalLogTrace를 
 	  적용해서 확인해보자.
 ```
+
+### 쓰레드 로컬 동기화 - 적용 
+```
+  LogTraceConfig 수정 
+    - 동시성 문제가 있는 FieldLogTrace 대신에 문제를 해결한 
+	  ThreadLocalLogTrace를 스프링 빈으로 등록하자 
+	  
+  동시 요청 
+    동시성 문제 확인 
+	  다음 로직을 1초안에 2번 실행해보자.
+	    - http://localhost:8080/v3/request?itemId=hello
+		- http://localhost:8080/v3/request?itemId=hello
+	
+	  로그를 직접 분리해서 확인해보면 각각의 쓰레드 별로 로그가 정확하게 
+	  나누어 진 것을 확인할 수 있다. 
+``` 
