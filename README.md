@@ -343,3 +343,53 @@
 	HTTP 요청을 구분하고 깊이를 표현하기 위해서 TraceId를 
 	파라미터로 넘기는 것 말고 다른 대안은 없을까?
 ```
+
+## 쓰레드 로컬 - ThreadLocal
+
+## 필드 동기화 - 개발 
+```
+  앞서 로그 추적기를 만들면서 다음 로그를 출력할 때 트랜잭션ID와 level을 동기화 하는 
+  문제가 있었다. 이 문제를 해결하기 위해 TraceId를 파라미터로 넘기도록 구현했다. 
+  이렇게 해서 동기화는 성공했지만, 로그를 출력하는 모든 메서드에 TraceId 파라미터를 
+  추가해야 하는 문제가 발생했다. TraceId를 파라미터로 넘기지 않고 이문제를 
+  해결할 수 있는 방법은 없을까?
+  
+  이런 문제를 해결할 목적으로 새로운 로그 추적기를 만들어보자. 
+  이제 프로토타입 버전이 아닌 정식 버전으로 제대로 개발해보자. 
+  향후 다양한 구현체로 변경할 수 있도록 LogTrace 인터페이스를 먼저 만들고, 구현해보자.
+  
+  LogTrace 인터페이스 
+    - LogTrace 인터페이스에는 로그 추적기를 위한 최소한의 기능인 begin(), end(),
+	  exception()를 정의했다. 
+	- 이제 파라미터를 넘기지 않고 TraceId를 동기화 할 수 있는 FieldLogTrace
+	  구현체를 만들어보자.
+  
+  FieldLogTrace
+    - FieldLogTrace는 기존에 만들었던 HelloTraceV2와 거의 같은 기능을 한다. 
+	- TraceId를 동기화 하는 부분만 파라미터를 사용하는 것에서
+	  TraceId traceIdHolder 필드를 사용하도록 변경되었다. 
+	- 이제 직전 로그의 TraceId는 파라미터로 전달되는 것이 아니라 FieldLogTrace의
+	  필드인 traceIdHolder에 저장된다. 
+	  
+	- 여기서 중요한 부분은 로그를 시작할 때 호출하는 syncTraceId()와
+	  로그를 종료할 때 호출하는 releaseTraceId()이다. 
+	- syncTraceId()
+	  - TraceId를 새로 만들거나 앞선 로그의 TraceId를 참고해서 동기화하고, 
+	    level도 증가한다. 
+	  - 최초 호출이면 TraceId를 새로 만든다. 
+	  - 직전 로그가 있으면 해당 로그의 TraceId를 참고해서 동기화하고,
+	    level도 하나 증가한다. 
+	  - 결과를 traceIdHolder에 보관한다 
+	- releaseTraceId()
+	  - 메서드를 추가로 호출할 때는 level이 하나 증가해야 하지만, 
+	    메서드 호출이 끝나면 level이 하나 감소해야 한다. 
+	  - releaseTraceId()는 level을 하나 감소한다.
+	  - 만약 최초 호출(level=0)이면 내부에서 관리하는 traceId를 제거한다.
+	  
+  테스트 코드를 통해서 실행해 보자 
+    실행 결과를 보면 트랜잭션ID도 동일하게 나오고, level을 통한 깊이도 잘 표현된다.
+	FieldLogTrace.traceIdHolder 필드를 사용해서 TraceId가 잘 동기화 
+	되는 것을 확인할 수 있다. 이제 불필요하게 TraceId를 파라미터로 전달하지 않아도 
+	되고, 애플리케이션의 메서드 파라미터도 변경하지 않아도 된다.
+	
+```
