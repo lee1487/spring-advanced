@@ -565,3 +565,42 @@
     - 쓰레드 로컬 덕분에 쓰레드 마다 각각 별도의 데이터 저장소를 가지게 되었다.
 	  결과적으로 동시성 문제도 해결되었다.
 ``` 
+
+### 쓰레드 로컬 동기화 - 개발 
+```
+  - FieldLogTrace에서 발생했던 동시성 문제를 ThreadLocal로 해결해보자
+  - TraceId traceIdHolder 필드를 쓰레드 로컬을 사용하도록 
+    ThreadLocal<TraceId> traceIdHolder로 변경하면 된다. 
+
+  - 필드 대신에 쓰레드 로컬을 사용해서 데이터를 동기화하는 
+    ThreadLocalLogTrace를 새로 만들자 
+	
+  ThreadLocalLogTrace
+    - traceIdHolder가 필드에서 ThreadLocal로 변경되었다. 따라서 값을 
+	  저장할 때는 set(..)을 사용하고 값을 조회할 때는 get()을 사용한다.
+	  
+    ThreadLocal.remove()
+	  - 추가로 쓰레드 로컬을 모두 사용하고 나면 꼭 ThreadLocal.remove()를 
+	    호출해서 쓰레드 로컬에 저장된 값을 제거해주어야 한다. 
+	  - 쉽게 이야기해서 다음의 마지막 로그를 출력하고 나면 쓰레드 로컬의 값을 
+	    제거해야 한다.
+	
+		[3f902f0b] hello1
+		[3f902f0b] |-->hello2
+		[3f902f0b] |<--hello2 time=2ms
+		[3f902f0b] hello1 time=6ms //end() -> releaseTraceId() -> level==0, 
+		ThreadLocal.remove() 호출
+		
+	  - 여기서는 releaseTraceId()를 통해 level이 점점 낮아져서 2->1->0
+	    이 되면 로그를 처음 호출한 부분으로 돌아온 것이다. 따라서 이 경우 
+		연관된 로그 출력이 끝난 것이다. 이제 더 이상 TraceId값을 
+		추적하지 않아도 된다. 그래서 traceId.isFirstLevel()(level==0)인
+		경우 ThreadLocal.remove()를 호출해서 쓰레드 로컬에 저장된
+		값을 제거해준다.
+		
+	
+  코드에 문제가 없는지 간단한 테스트틀 만들어서 확인해보자 
+  ThreadLocalLogTraceTest
+    - 멀티쓰레드 상황에서 문제가 없는지 애플리케이션에 ThreadLocalLogTrace를 
+	  적용해서 확인해보자.
+```
