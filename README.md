@@ -172,7 +172,7 @@
 	  - v0.OrderRepositoryV0 -> v1.OrderRepositoryV1
 	  - v0.OrderServiceV0 -> v1.OrderServiceV1
 	  - v0.OrderControllerV0 -> v1.OrderControllerV1
-	- 코드 내부 의존관계를 클래스를 V1으로 변경 
+	- 코드 내부 의존관계 클래스를 V1으로 변경 
 	  - OrderControllerV1: OrderServiceV0 -> OrderServiceV1
 	  - OrderServiceV1: OrderRepositoryV0 -> OrderRepositoryV1
 	- OrderControllerV1 매핑 정보 변경
@@ -273,7 +273,7 @@
 	    - v1.OrderRepositoryV1 -> v2.OrderRepositoryV2
 	    - v1.OrderServiceV1 -> v2.OrderServiceV2
 	    - v1.OrderControllerV1 -> v2.OrderControllerV2
-	  - 코드 내부 의존관계를 클래스를 V2으로 변경 
+	  - 코드 내부 의존관계 클래스를 V2으로 변경 
 	    - OrderControllerV2: OrderServiceV1 -> OrderServiceV2
 	    - OrderServiceV2: OrderRepositoryV1 -> OrderRepositoryV2
 	  - OrderControllerV2 매핑 정보 변경
@@ -391,5 +391,34 @@
 	FieldLogTrace.traceIdHolder 필드를 사용해서 TraceId가 잘 동기화 
 	되는 것을 확인할 수 있다. 이제 불필요하게 TraceId를 파라미터로 전달하지 않아도 
 	되고, 애플리케이션의 메서드 파라미터도 변경하지 않아도 된다.
-	
 ```
+
+## 필드 동기화 - 적용
+```
+  지금까지 만든 FieldLogTrace를 애플리케이션에 적용해 보자.
+  
+  LogTrace 스프링 빈 등록 
+    - FieldLogTrace를 수동으로 스프링 빈으로 등록하자. 수동으로 등록하면 향후 
+	  구현체를 편리하게 변경할 수 있다는 장점이 있다. 
+  
+    LogTraceConfig
+	
+  v2 -> v3 복사 
+    로그 추적기 V3를 적용하기 전에 먼저 기존 코드를 복사하자.
+	  - hello.advanced.app.v3 패키지 생성 
+	  - 복사 
+	    - v2.OrderControllerV2 -> v3.OrderControllerV3
+		- v2.OrderServiceV2 -> v3.OrderServiceV3
+		- v2.OrderRepositoryV2 -> v3.OrderRepositoryV3
+	  - 코드 내부 의존관계 클래스를 V3으로 변경
+	    - OrderControllerV3: OrderServiceV2 -> OrderServiceV3
+		- OrderServiceV3: OrderRepositoryV2 -> OrderRepositoryV3
+	  - OrderControllerV3 매핑 정보 변경 
+	    - @GetMapping("/v3/request")
+	  - HelloTraceV2 -> LogTrace 인터페이스 사용 -> 주의!
+	  - TraceId traceId 파라미터를 모두 제거 
+	  - beginSync() -> begin() 으로 사용하도록 변경 
+	  
+	traceIdHolder 필드를 사용한 덕분에 파라미터 추가 없는 깔끔한 로그 추적기를 완성했다.
+	이제 실제 서비스에 배포한다고 가정해보자.
+``` 
