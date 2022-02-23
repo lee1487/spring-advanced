@@ -541,3 +541,27 @@
     - 자바는 언어 차원에서 쓰레드 로컬을 지원하기 위한 java.lang.ThreadLocal
 	  클래스를 제공한다.
 ```
+
+### ThreadLocal - 예제 코드 
+```
+  예제 코드를 통해서 ThreadLocal을 학습해보자 
+  
+  ThreadLocalService 
+    주의: 테스트 코드(src/test)에 위치한다.
+	기존에 있던 FieldService와 거의 같은 코드인데, nameStore 필드가 일반 
+	String 타입에서 ThreadLocal을 사용하도록 변경되었다. 
+	
+	ThreadLocal 사용법 
+	  - 값 저장: ThreadLocal.set(xxx)
+	  - 값 조회: ThreadLocal.get()
+	  - 값 제거: ThreadLocal.remove()
+	  
+	  주의  
+	    해당 쓰레드가 쓰레드 로컬을 모두 사용하고 나면 ThreadLocal.remove()를 
+		호출해서 쓰레드 로컬에 저장된 값을 제거해주어야 한다. 제거하는 구체적인 
+		예제는 조금 뒤에 설명하겠다. 
+  
+  ThreadLocalServiceTest
+    - 쓰레드 로컬 덕분에 쓰레드 마다 각각 별도의 데이터 저장소를 가지게 되었다.
+	  결과적으로 동시성 문제도 해결되었다.
+``` 
