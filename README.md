@@ -788,3 +788,53 @@
 	  TemplateMethodTest$1, TemplateMethodTest$2 
 	  인 것을 확인 할 수 있다.
 ```
+
+### 템플릿 메서드 패턴 - 적용1 
+```
+  이제 우리가 만든 애플리케이션의 로그 추적기 로직에서 템플릿 메서드 패턴을 적용해보자.
+  
+  AbstractTemplate
+    - AbstractTemplate은 템플릿 메서드 패턴에서 부모 클래스이고, 
+	  템플릿 역할을 한다.
+	- <T> 제네릭을 사용했다. 반환 타입을 정의한다.
+	- 객체를 생성할 때 내부에서 사용할 LogTrace trace를 전달 받는다 
+	- 로그에 출력할 message를 외부에서 파라미터로 전달받는다. 
+	- 템플릿 코드 중간에 call() 메서드를 통해서 변하는 부분을 처리한다. 
+	- abstract T call()은 변하는 부분을 처리하는 메서드이다. 
+	  이 부분은 상속으로 구현해야 한다. 
+	  
+  v3 -> v4 복사 
+    - 먼저 기존 프로젝트 코드를 유지하기 위해 v4 애플리케이션을 
+	  복사해서 만들자 
+	  
+	- hello.advanced.app.v4 패키지 생성 
+	- 복사 
+	  - v3.OrderControllerV3 -> v4.OrderControllerV4
+	  - v3.OrderServiceV3 -> V4.OrderServiceV4
+	  - v3.OrderRepositoryV3 -> v4.OrderRepositoryV4
+	- 코드 내부 의존관계 클래스를 V4로 변경 
+	  - OrderControllerV4: OrderServiceV3 -> OrderServiceV4
+	  - OrderServiceV4: OrderRepositoryV3 -> OrderRepositoryV4
+	- OrderControllerV4 매핑 정보 변경 
+	  - @GetMapping("/v4/request")
+	- AbstractTemplate을 사용하도록 코드 변경 
+	
+  OrderControllerV4
+    - AbstractTemplate<String>
+	  - 제네릭을 String으로 설정했다. 따라서 AbstractTemplate의
+	    반환 타입은 String이 된다. 
+	- 익명 내부 클래스 
+	  - 익명 내부 클래스를 사용한다. 객체를 생성하면서 AbstractTemplate를
+	    상속받은 자식 클래스를 정의했다. 
+	  - 따라서 별도의 자식 클래스를 직접 만들지 않아도 된다. 
+	- template.execute("OrderController.request()")
+	  - 템플릿을 실행하면서 로그로 남길 message를 전달한다. 
+	  
+  OrderServiceV4
+    - AbstractTemplate<Void>
+	  - 제네릭에서 반환 타입이 필요한데, 반환할 내용이 없으면 Void 타입을 
+	    사용하고 null을 반환하면 된다. 참고로 기본 타입인 void, int등을
+		선언할 수 없다. 
+
+  OrderRepositoryV4
+```
