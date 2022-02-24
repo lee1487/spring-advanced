@@ -1211,3 +1211,77 @@
 ```
   강의는 새 프로젝트 생성이였으나 하나의 프로젝트로 진행하기 위해 폴더구조를 개편하였다.
 ```
+
+### 예제 프로젝트 만들기 v1 
+```
+  다양한 상황에서 프록시 사용법을 이해하기 위해 다음과 같은 기준으로 기본 예제 프로젝트를
+  만들어보자. 
+  
+  예제는 크게 3가지 상황으로 만든다. 
+    - v1 - 인터페이스와 구현 클래스 - 스프링 빈으로 수동 등록 
+	- v2 - 인터페이스 없는 구체 클래스 - 스프링 빈으로 수동 드록 
+	- v3 - 컴포넌트 스캔으로 스프링 빈 자동 등록 
+  
+  실무에서는 스프링 빈으로 등록할 클래스는 인터페이스가 있는 경우도 있고 없는 경우도 있다. 
+  그리고 스프링 빈을 수동으로 직접 등록하는 경우도 있고, 컴포넌트 스캔으로 자동으로 
+  등록하는 경우도 있다. 이런 다양한 케이스에 프록시를 어떻게 적용하는지 알아보기 위해 
+  다양한 예제를 준비해 보자. 
+  
+  v1 - 인터페이스와 구현 클래스 - 스프링 빈으로 수동 등록 
+    - 지금까지 보아왔던 Controller, Service, Repositosy에 인터페이스를 
+	  도입하고, 스프링 빈으로 수동 등록해보자.
+	OrderRepositoryV1
+	OrderRepositoryV1Impl
+	OrderServiceV1
+	OrderServiceV1Impl
+	OrderControllerV1
+	  - @RequestMapping: 스프링MVC는 타입에 @Controller 또는 
+	    @RequestMapping애노테이션이 있어야 스프링 컨트롤러로 인식한다. 
+		그리고 스프링 컨트롤러로 인식해야, HTTP URL이 매핑되고 동작한다.
+		이 애노테이션은 인터페이스에 사용해도 된다. 
+	  - @ResponseBody: HTTP 메세지 컨버터를 사용해서 응답한다. 
+	    이 애노테이션은 인터페이스에 사용해도 된다. 
+	  - @RequestParam("itemId") String itemId: 인터페이스에는 
+	    @RequestParam("itemId")의 값을 생략하면 itemId 단어를 
+		컴파일 이후 자바 버전에 따라 인식하지 못할 수 있다. 인터페이스에서는 
+		꼭 넣어주자. 클래스에는 생략해도 대부분 잘 지원된다.
+	  - 코드를 보면 request(), noLog() 두가지 메서드가 있다. 
+	    request()는 LogTrace를 적용할 대상이고 , noLog()는 
+		단순히 LogTrace를 적용하지 않을 대상이다. 
+		
+	OrderControllerV1Impl
+	  - 컨트롤러 구현체이다. OrderControllerV1 인터페이스에
+	    스프링 MVC 관련 애노테이션이 정의되어 있다. 
+	
+	AppV1Config 
+	  - 이제 스프링 빈으로 수동 등록해보자.
+	    - 스프링 빈으로 수동 등록하는 코드는 특별히 어려운 내용이 없다.
+	
+	AddvancedApplication - 코드 추가
+	  - @Import(AppV1Config.class): 클래스를 스프링 빈으로 
+	    등록한다. 여기서는 AppV1Config.class를 스프링 빈으로 
+		등록한다. 일반적으로 @Configuration 같은 설정 파일을 
+		등록할 때 사용하지만, 스프링 빈을 등록할 때도 사용할 수 있다. 
+	
+	  - @SpringBootApplication(scanBasePackages =
+	    "hello.advanced.proxy.app): @ComponentScan의 
+		기능과 같다. 컴포넌트 스캔을 시작할 위치를 지정한다. 이 값을 
+		설정하면 해당 패키지와 그 하위 패키지를 컴포넌트 스캔한다. 
+		이 값을 사용하지 않으면 AddvancedApplication이 있는 
+		패키지와 그 하위 패키지를 스캔한다. 참고로 v3에서 지금 설정한 
+		컴포넌트 스캔 기능을 사용한다. 
+	
+	주의 
+	  - 강의에서는 @Configuration을 사용한 수동 빈 등록 설정을 
+	    hello.advanced.proxy.config 위치에 두고 점진적으로 
+		변경할 예정이다. 지금은 AppV1Config.class를 @Import를
+		사용해서 설정하지만 이후에 다른 것을 설정한다는 이야기이다. 
+		
+	  - @Configuration은 내부에 @Component 애노테이션을 
+	    포함하고 있어서 컴포넌트 스캔의 대상이 된다. 따라서 컴포넌트 스캔에
+		의해 hello.advanced.proxy.config 위치의 설정 파일들이 
+		스프링 빈으로 자동 등록 되지 않도록 컴포넌트 스캔의 시작 위치를 
+		scanBasePackages= hello.advanced.proxy.app로
+		설정해야 한다.
+		
+``` 
