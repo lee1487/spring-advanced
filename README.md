@@ -1219,7 +1219,7 @@
   
   예제는 크게 3가지 상황으로 만든다. 
     - v1 - 인터페이스와 구현 클래스 - 스프링 빈으로 수동 등록 
-	- v2 - 인터페이스 없는 구체 클래스 - 스프링 빈으로 수동 드록 
+	- v2 - 인터페이스 없는 구체 클래스 - 스프링 빈으로 수동 등록 
 	- v3 - 컴포넌트 스캔으로 스프링 빈 자동 등록 
   
   실무에서는 스프링 빈으로 등록할 클래스는 인터페이스가 있는 경우도 있고 없는 경우도 있다. 
@@ -1282,6 +1282,32 @@
 		의해 hello.advanced.proxy.config 위치의 설정 파일들이 
 		스프링 빈으로 자동 등록 되지 않도록 컴포넌트 스캔의 시작 위치를 
 		scanBasePackages= hello.advanced.proxy.app로
-		설정해야 한다.
-		
+		설정해야 한다.	
 ``` 
+
+### 예제 프로젝트 만들기 v2 
+```
+  v2 - 인터페이스 없는 구체 클래스 - 스프링 빈으로 수동 등록 
+    - 이번에는 인터페이스가 없는 Controller, Service, Repository를 
+	  스프링 빈으로 수동 등록해보자. 
+	  
+	OrderRepositoryV2
+	OrderServiceV2
+	OrderControllerV2
+	  - @RequestMapping: 스프링MVC는 타입에 @Controller 또는 
+	    @RequestMapping애노테이션이 있어야 스프링 컨트롤러로 인식한다. 
+		그리고 스프링 컨트롤러로 인식해야, HTTP URL이 매핑되고 동작한다.
+		그런데 여기서는 @Controller를 사용하지 않고 @RequestMapping
+		애노테이션을 사용했다. 그 이유는 @Controller를 사용하면 
+		자동 컴포넌트 스캔의 대상이 되기 때문이다. 여기서는 컴포넌트 스캔을 통한 
+		자동 빈 등록이 아니라 수동 빈 등록을 하는 것이 목표다. 따라서 컴포넌트
+		스캔과 관계 없는 @RequestMapping을 타입에 사용했다. 
+	AppV2Config
+	  - 수동 빈 등록을 위한 설정 
+	
+	AddvancedApplication
+	  - 변경 사항 
+	    - 기존: @Import(AppV1Config.class)
+		- 변경: @Import({AppV1Config.class, AppV2Config.class})
+	  - @Import 안에 배열로 등록하고 싶은 설정 파일을 다양하게 추가할 수 있다. 
+```
