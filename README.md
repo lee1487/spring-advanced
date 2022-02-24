@@ -1137,3 +1137,45 @@
 	  람다를 사용하는 것이 편리하다. 물론 여러곳에서 함께 사용되는 경우 
 	  재사용을 위해 콜백을 별도의 클래스로 만들어도 된다.
 ``` 
+
+### 템플릿 콜백 패턴 - 적용 
+```
+  이제 템플릿 콜백 패턴을 애플리케이션에 적용해보자. 
+  
+  TraceCallback 인터페이스 
+    - 콜백을 전달하는 인터페이스이다. 
+	- <T>제네릭을 사용했다. 콜백의 반환 타입을 정의한다. 
+
+  TraceTemplate
+    - TraceTemplate은 템플릿 역할을 한다.
+	- execute(..)을 보면 message 데이터와 콜백인 
+	  TraceCallback callback을 전달 받는다.
+	- <T> 제네릭을 사용했다. 반환 타입을 정의한다.
+  
+  v4 -> v5 복사 
+	- hello.advanced.app.v5 패키지 생성 
+	- 복사 
+	  - v4.OrderControllerV4 -> v5.OrderControllerV5
+	  - v4.OrderServiceV4 -> V5.OrderServiceV5
+	  - v4.OrderRepositoryV4 -> v5.OrderRepositoryV5
+	- 코드 내부 의존관계 클래스를 V5로 변경 
+	  - OrderControllerV5: OrderServiceV4 -> OrderServiceV5
+	  - OrderServiceV5: OrderRepositoryV4 -> OrderRepositoryV5
+	- OrderControllerV5 매핑 정보 변경 
+	  - @GetMapping("/v5/request")
+	- TraceTemplate을 사용하도록 코드 변경
+
+  OrderControllerV5
+    - this.template = new TraceTemplate(trace): trace 의존관계 주입을 
+	  받으면서 필요한 TraceTemplate 템플릿을 생성한다. 참고로 TraceTemplate를 
+	  처음부터 스프링 빈으로 등록하고 주입받아도 된다. 이 부분은 선택이다. 
+	- template.execute(.., new TraceCallback(){..}): 템플릿을 
+	  실행하면서 콜백을 전달한다. 여기서는 콜백으로 익명 내부 클래스를 사용했다.
+	  
+  OrderServiceV5
+    - template.execute(..,new TraceCallback(){..}): 템플릿을 
+	  실행하면서 콜백을 전달한다. 여기서는 콜백으로 람다를 전달했다.
+
+  OrderRepositoryV5
+    - 앞의 로직과 같다.
+``` 
