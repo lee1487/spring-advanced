@@ -17,3 +17,4 @@ public class ProxyPatternTest {
 		client.execute();
 	}
 }
+
