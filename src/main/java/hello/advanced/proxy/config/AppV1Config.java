@@ -23,6 +23,7 @@ public class AppV1Config {
 		return new OrderServiceV1Impl(orderRepositoryV1());
 	}
 
+	@Bean
 	public OrderRepositoryV1 orderRepositoryV1() {
 		return new OrderRepositoryV1Impl();
 	}
