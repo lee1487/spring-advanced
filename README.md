@@ -1774,3 +1774,35 @@
 		너무 기본적인 내용을 이야기했지만, 인터페이스가 없어도 프록시가 가능하다는
 		것을 확실하게 집고 넘어갈 필요가 있어서 자세히 설명했다.
 ```
+
+### 구체 클래스 기반 프록시 - 적용 
+```
+  이번에는 앞서 학습한 내용을 기반으로 구체 클래스만 있는 V2 애플리케이션에 
+  프록시 기능을 적용해보자.
+  
+  OrderRepositoryConcreteProxy
+    - 인터페이스가 아닌 OrderRepositoryV2 클래스를 상속 받아서 프록시를 만든다.
+  
+  OrderServiceConcreteProxy
+    - 인터페이스가 아닌 OrderServiceV2 클래스를 상속 받아서 프록시를 만든다.
+	
+    클래스 기반 프록시의 단점 
+      - super(null): OrderServiceV2: 자바 기본 문법에 의해 자식 클래스를 
+	    생성할 때는 항상 super()로 부모 클래스의 생성자를 호출해야 한다. 이부분을 
+	    생략하면 기본 생성자가 호출된다. 그런데 부모 클래스인 OrderService2는 
+	    기본 생성자가 없고, 생성자에서 파라미터 1개를 필수로 받는다. 따라서 파라미터를
+	    넣어서 super(..)을 호출해야 한다. 
+	  - 프록시는 부모 객체의 기능을 사용하지 않기 때문에 super(null)을 입력해도 된다.
+	  - 인터페이스 기반 프록시는 이런 고민을 하지 않아도 된다.
+  OrderControllerConcreteProxy
+    - 앞과 같다.
+
+  ConcreteProxyConfig
+    - 인터페이스 대신에 구체 클래스를 기반으로 프록시를 만든다는 것을 제외하고는 기존과 같다.
+
+  AdvancedApplication
+    - @Import(ConcreteProxyConfig.class) : 설정을 추가하자.
+
+  실행 
+    - 실행을 해보면 클래스 기반 프록시도 잘 동작하는 것을 확인할 수 있다.
+```
