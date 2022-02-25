@@ -1529,6 +1529,32 @@
 	  프록시를 도입해서 접근 제어를 했다는 점이다. 
 	- 그리고 클라이언트의 코드의 변경 없이 자유롭게 프록시를 넣고 뺄 수 있다. 
 	  실제 클라이언트 입장에서는 프록시 객체가 주입되었는지, 실제 객체가 주입되었는지 
-	  알지 못한다.
-		 
+	  알지 못한다.	 
+```
+
+### 데코레이터 패턴 - 예제 코드 1
+```
+  데코레이터 패턴을 이해하기 위한 예제 코드를 작성해보자. 먼저 데코레이터 패턴을 도입하기
+  전 코드를 아주 단순하게 만들어보자.
+  
+  Component 인터페이스 
+    - 주의: 테스트 코드(src/test)에 위치한다. 
+	- Component 인터페이스는 단순히 String operation() 메서드를 가진다. 
+  
+  RealComponent
+    - 주의: 테스트 코드(src/test)에 위치한다. 
+	- RealComponent는 Component 인터페이스를 구현한다.
+	- operation(): 단순히 로그를 남기고 "data" 문자를 반환한다.
+	
+  DecoratorPatternClient
+    - 주의: 테스트 코드(src/test)에 위치한다. 
+	- 클라이언트 코드는 단순히 Component 인터페이스를 의존한다.
+	- execute()를 실행하면 component.operation()을 호출하고,
+	  그 결과를 출력한다. 
+  
+  DecoratorPatternTest
+    - 테스트 코드는 client -> realComponent의 의존관계를 설정하고, 
+	  client.execute()를 호출한다. 
+	- 여기까지는 앞서 프록시 패턴에서 설명한 내용과 유사하고 단순해서 이해하는데 
+	  어려움은 없을 것이다.
 ```
