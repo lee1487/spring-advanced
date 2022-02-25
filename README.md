@@ -1594,3 +1594,24 @@
 	    반환한 응답 메세지를 꾸며서 반환한 것을 확인할 수 있다. 
 	DecoratorPatternTest - 추가
 ```
+
+### 데코레이터 패턴 - 예제 코드 3
+```
+  실행 시간을 측정하는 데코레이터 
+    - 이번에는 기존 데코레이터에 더해서 실행 시간을 측정하는 기능까지 추가해보자 
+	
+	TimeDecorator
+	  - 주의: 테스트 코드(src/test)에 위치한다.
+	  - TimeDecorator는 실행 시간을 측정하는 부가 기능을 제공한다. 
+	    대상을 호출하기 전에 시간을 가지고 있다가, 대상의 호출이 끝나면 
+		호출 시간을 로그로 남겨준다.
+	
+	DecoratorPatternTest - 추가
+	  client->timeDecorator->messageDecorator->realComponent의
+	  객체 의존관계를 설정하고, 실행한다.
+	  
+	실행 결과 
+	  - 실행 결과를 보면 TimeDecorator가 MessageDecorator를 실행하고 
+	    실행 시간을 측정해서 출력한 것을 확인할 수 있다.
+```
+
