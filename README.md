@@ -2039,6 +2039,37 @@
 	- JDK 동적 프록시 없이 직접 프록시를 만들어서 사용할 때와 JDK 동적 프록시를 
 	  사용할 때의 차이를 그림으로 비교해 보자 
 	    - 그림은 강의 내용을 참고하자.
-	  
+```
+
+### JDK 동적 프록시 - 적용1
+```
+  JDK 동적 프록시는 인터페이스가 필수이기 때문에 V1 애플리케이션에만 적용할 수 있다. 
+  먼저 LogTrace를 적용할 수 있는 InvocationHandler를 만들자
   
+  LogTraceBasicHandler
+    - LogTraceBasicHandler는 InvocationHandler 인터페이스를 구현해서 
+	  JDK 동적 프록시에서 사용된다. 
+	- private final Object target: 프록시가 호출할 대상이다. 
+	- String message = method.getDeclaringClass().getSimpleName()
+	  + "." ... 
+	  - LogTrace에 사용할 메시지이다. 프록시를 직접 개발할 때는 "OrderController.request()"
+	    와 같이 프록시마다 호출되는 클래스와 메서드의 이름을 직접 남겼다. 이제는 Method를 통해서 
+		호출되는 메서드 정보와 클래스 정보를 동적으로 확인할 수 있기 때문에 이 정보를 
+		사용하면 된다.
+  동적 프록시를 사용하도록 수동 빈 등록을 설정하자 
+  
+  DynamicProxyBasicConfig
+    - 이전에는 프록시 클래스를 직접 개발했지만, 이제는 JDK 동적 프록시 기술을 사용해서 
+	  각각의 Controller, Service, Repository에 맞는 동적 프록시를 
+	  생성해주면 된다. 
+	- LogTraceBasicHandler: 동적 프록시를 만들더라도 LogTrace를 출력하는 
+	  로직은 모두 같기 때문에 프록시는 모두 LogTraceBasicHandler를 사용한다.
+  
+  ProxyApplication - 수정
+    - @Import(DynamicProxyBasicConfig.class) : 이제 동적 프록시 
+	  설정을 @Import 하고 실행해보자.
+
+  남은 문제 
+    - no-log를 실행해도 동적 프록시가 적용되고, LogTraceBasicHandler가 
+	  실행되기 때문에 로그가 남는다. 이 부분을 로그가 남지 않도록 처리해야 한다.
 ```

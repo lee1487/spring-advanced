@@ -7,19 +7,21 @@ import org.springframework.context.annotation.Import;
 
 import hello.advanced.proxy.config.v1_proxy.ConcreteProxyConfig;
 import hello.advanced.proxy.config.v1_proxy.InterfaceProxyConfig;
+import hello.advanced.proxy.config.v2_dynamicproxy.handler.DynamicProxyBasicConfig;
 import hello.advanced.template.trace.logtrace.LogTrace;
 import hello.advanced.template.trace.logtrace.ThreadLocalLogTrace;
 
 //@Import({AppV1Config.class, AppV2Config.class})
 //@Import(InterfaceProxyConfig.class)
-@Import(ConcreteProxyConfig.class)
+//@Import(ConcreteProxyConfig.class)
+@Import(DynamicProxyBasicConfig.class)
 @SpringBootApplication(scanBasePackages = "hello.advanced.proxy.app")	//주의
 public class AdvancedApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(AdvancedApplication.class, args);
 	}
-	
+
 	@Bean
 	public LogTrace logTrace() {
 		return new ThreadLocalLogTrace();
