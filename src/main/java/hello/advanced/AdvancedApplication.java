@@ -5,16 +5,15 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 
-import hello.advanced.proxy.config.v1_proxy.ConcreteProxyConfig;
-import hello.advanced.proxy.config.v1_proxy.InterfaceProxyConfig;
-import hello.advanced.proxy.config.v2_dynamicproxy.handler.DynamicProxyBasicConfig;
+import hello.advanced.proxy.config.v2_dynamicproxy.DynamicProxyFilterConfig;
 import hello.advanced.template.trace.logtrace.LogTrace;
 import hello.advanced.template.trace.logtrace.ThreadLocalLogTrace;
 
 //@Import({AppV1Config.class, AppV2Config.class})
 //@Import(InterfaceProxyConfig.class)
 //@Import(ConcreteProxyConfig.class)
-@Import(DynamicProxyBasicConfig.class)
+//@Import(DynamicProxyBasicConfig.class)
+@Import(DynamicProxyFilterConfig.class)
 @SpringBootApplication(scanBasePackages = "hello.advanced.proxy.app")	//주의
 public class AdvancedApplication {
 
