@@ -2324,6 +2324,6 @@
 	    프록시가 생성되고, JDK 동적 프록시인 경우 참
 	  - AopUtils.isCglibProxy(proxy): 프록시 팩토리를 통해서 프록시가 
 	    생성되고, CGLIB 동적 프록시인 경우 참
-	- 물론 proxy.getClass()처럼 인스턴스의 클래스 정보를 직접 출력해서 
+	- 물론 proxy.getClass()처럼 인스턴스의 클래스 정보를 직접 출력해서
 	  확인할 수 있다.
 ```
