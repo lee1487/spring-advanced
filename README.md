@@ -2662,3 +2662,24 @@
 	4. 등록: 빈 후처리기는 빈을 반환한다. 전달 된 빈을 그대로 반환하면 해당 빈이 
 	   등록되고, 바꿔치기 하면 다른 객체가 빈 저장소에 등록된다.
 ```
+
+### 빈 후처리기 - 예제 코드 1
+```
+  빈 후처리기를 학습하기 전에 먼저 일반적인 스프링 빈 등록 과정을 코드로 작성해보자.
+  
+  BasicTest 
+    - new AnnotationConfigApplicationContext(BasicConfig.class)
+	  스프링 컨테이너를 생성하면서 BasicConfig.class를 넘겨주었다. 
+	  BasicConfig.class 설정 파일은 스프링 빈으로 등록된다. 
+	
+	등록 
+	  - BasicConfig.class
+	    - beanA라는 이름으로 A 객체를 스프링 빈으로 등록했다. 
+	조회 
+	  - A a = applicationContext.getBean("beanA", A.class)
+	    - beanA라는 이름으로 A 타입의 스프링 빈을 찾을 수 있다. 
+	  - applicationContext.getBean(B.class)
+	    - B 타입의 객체는 스프링 빈으로 등록한 적이 없기 때문에 스프링 컨테이너에서 
+		  찾을 수 없다.
+``` 
+
